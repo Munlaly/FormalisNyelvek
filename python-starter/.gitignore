@@ -1,2 +1,6 @@
 __pycache__
 *.py[c|o]
+
+#for local testing
+/test-inputs
+test-outputs
