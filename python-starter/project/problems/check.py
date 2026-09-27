@@ -40,7 +40,8 @@ class CheckProblem(Problem):
         transitions: dict[str, dict[str, str]] = {}
         for transition in lines[4:]:
             current_state, char, next_state = transition.strip().split()
-            transitions[current_state] = {}
+            if current_state not in transitions:
+                transitions[current_state] = {}
 
             if char in transitions[current_state]:
                 raise ValueError(f'{current_state} already has a transition for {char}')
