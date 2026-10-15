@@ -29,15 +29,19 @@ class Automaton:
         transitions = {}
         for transition in lines[4:]:
             current_state, char, next_state = transition.strip().split()
-            if current_state not in transitions:
-                transitions[current_state] = {}
 
-            if current_state not in transitions or next_state not in transitions[current_state]:
-                raise ValueError(f'Invalid transition: {current_state} --{char}--> {next_state}')
             if char not in alphabet:
                 raise ValueError(f'Invalid character in transition: {char} not in alphabet')
 
-            transitions[current_state][char].add(next_state)
+            if current_state not in states or next_state not in states:
+                raise ValueError(f'Invalid state in transition: {current_state} --{char}--> {next_state}')
+
+            if current_state not in transitions:
+                transitions[current_state] = {char:{next_state,}}
+            elif char not in transitions[current_state]:
+                transitions[current_state][char] = {next_state,}
+            else:
+                transitions[current_state][char].add(next_state)
 
         return cls(states, alphabet, starting_state, end_states, transitions)
 
@@ -69,28 +73,21 @@ class DFA(Automaton):
     @classmethod
     @override
     def from_file(cls, input_file: str) -> 'DFA':
-        with open(input_file, 'r') as f:
-            lines = f.readlines()
+        base_automaton = super().from_file(input_file)
 
-        states = set(lines[0].strip().split())
-        alphabet = set(lines[1].strip().split())
-        starting_state = lines[2].strip()
-        end_states = set(lines[3].strip().split())
+        for state, transitions in base_automaton.transitions.items():
+            for char, next_states in transitions.items():
+                if len(next_states) > 1:
+                    raise ValueError(
+                        f'DFA cannot have multiple transitions for the same character: {state} --{char}--> {next_states}')
 
-        transitions = {}
-        for transition in lines[4:]:
-            current_state, char, next_state = transition.strip().split()
-            if current_state not in transitions:
-                transitions[current_state] = {}
-
-            if char in transitions[current_state]:
-                raise ValueError(f'{current_state} already has a transition for {char}')
-            if char not in alphabet:
-                raise ValueError(f'Invalid character in transition: {char} not in alphabet')
-
-            transitions[current_state][char] = {next_state}
-
-        return cls(states, alphabet, starting_state, end_states, transitions)
+        return cls(
+            states=base_automaton.states,
+            alphabet=base_automaton.alphabet,
+            starting_state=base_automaton.starting_state,
+            end_states=base_automaton.end_states,
+            transitions=base_automaton.transitions
+        )
 
     @override
     def accepts(self, word: str) -> bool:
