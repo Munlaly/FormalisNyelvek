@@ -46,6 +46,28 @@ class Automaton:
 
         return cls(states, alphabet, starting_state, end_states, transitions)
 
+    @override
+    def __str__(self) -> str:
+        lines = [
+            " ".join(sorted(self.states)),
+            " ".join(sorted(self.alphabet)),
+            self.starting_state,
+            " ".join(sorted(self.end_states))
+        ]
+
+        transition_list = []
+        for state, char_transitions in self.transitions.items():
+            for char, next_states in char_transitions.items():
+                for next_state in next_states:
+                    transition_list.append((state, char, next_state))
+
+        transition_list.sort()
+
+        for state, char, next_state in transition_list:
+            lines.append(f"{state} {char} {next_state}")
+
+        return "\n".join(lines)
+
     def accepts(self, word: str) -> bool:
         current_states = {self.starting_state}
         for char in word:
