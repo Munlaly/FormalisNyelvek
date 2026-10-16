@@ -1,3 +1,4 @@
+from collections import deque
 from typing import override
 
 
@@ -99,3 +100,43 @@ class DFA(Automaton):
             current_state = next(iter(state_transitions[char]))
 
         return current_state in self.end_states
+
+
+def determinize(automaton:Automaton) ->DFA:
+    new_states = {'s0'}
+    new_end_states = set()
+    new_transitions: dict[str, dict[str, set[str]]] = {}
+
+    initial_state:frozenset[str] = frozenset({automaton.starting_state})
+    states_queue:deque[frozenset[str]] = deque([initial_state])
+    state_mapping:dict[frozenset[str], str] = {initial_state: 's0'}
+
+    if initial_state.intersection(automaton.end_states):
+        new_end_states.add('s0')
+
+    while states_queue:
+        current_state = states_queue.popleft()
+        current_name = state_mapping[current_state]
+
+        new_transitions[current_name] = {}
+        for char in automaton.alphabet:
+            next_states:set[str] = set()
+            for state in current_state:
+                next_states.update(automaton.transitions.get(state,{}).get(char,set()))
+
+            if not next_states:
+                continue
+
+            next_states:frozenset[str] = frozenset(next_states)
+            if next_states and next_states not in state_mapping:
+                state_mapping[next_states] = f's{len(state_mapping)}'
+                new_states.add(state_mapping[next_states])
+                states_queue.append(next_states)
+
+                if next_states.intersection(automaton.end_states):
+                    new_end_states.add(state_mapping[next_states])
+
+            new_transitions[state_mapping[current_state]][char]= {state_mapping[next_states],}
+
+    return DFA(new_states,automaton.alphabet, 's0', new_end_states, new_transitions)
+
