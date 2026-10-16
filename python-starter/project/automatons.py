@@ -141,7 +141,7 @@ def determinize(automaton:Automaton) ->DFA:
         current_name = state_mapping[current_state]
 
         new_transitions[current_name] = {}
-        for char in automaton.alphabet:
+        for char in sorted(automaton.alphabet):
             next_states:set[str] = set()
             for state in current_state:
                 next_states.update(automaton.transitions.get(state,{}).get(char,set()))
