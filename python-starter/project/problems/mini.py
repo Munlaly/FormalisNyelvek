@@ -1,11 +1,11 @@
 import argparse
 
-from project.automatons import Automaton
+from project.automatons import Automaton, minimize_hun, DFA
 from project.problem import Problem
 
 
 class MinimizeProblem(Problem):
-    def __init__(self, problem) -> None:
+    def __init__(self) -> None:
         pass
 
     def initialize_parser(self, parser: argparse.ArgumentParser) -> None:
@@ -31,3 +31,8 @@ class MinimizeProblem(Problem):
         output_file:str = args.output
 
         automaton: Automaton = Automaton.from_file(input_file)
+
+        minimized_automaton:DFA = minimize_hun(automaton)
+
+        with open(output_file,'w') as f:
+            print(minimized_automaton, file=f)

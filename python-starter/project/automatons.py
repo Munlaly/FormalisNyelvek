@@ -162,3 +162,94 @@ def determinize(automaton:Automaton) ->DFA:
 
     return DFA(new_states,automaton.alphabet, 's0', new_end_states, new_transitions)
 
+def extract_num(state_name: str) -> int:
+    digits = ''.join(filter(str.isdigit, state_name))
+    return int(digits) if digits else 0
+
+def minimize_hun(dfa:DFA)->DFA:
+    pairs: set[frozenset[str]] = {frozenset({p,q}) for p in dfa.states for q in dfa.states if p < q}
+    marked_pairs:set[frozenset[str]] = {pair for pair in pairs if len(pair & dfa.end_states) == 1}
+    unmarked_pairs: set[frozenset[str]] = pairs - marked_pairs
+
+    changed: bool = True
+    while changed:
+        changed = False
+
+        for pair in list(unmarked_pairs):
+            p, q = tuple(pair)
+
+            for ch in dfa.alphabet:
+                p_next = next(iter(dfa.transitions.get(p, {}).get(ch, set())), 'TRAP')
+                q_next = next(iter(dfa.transitions.get(q, {}).get(ch, set())), 'TRAP')
+
+                if p_next != q_next and frozenset({p_next, q_next}) in marked_pairs:
+                    marked_pairs.add(pair)
+                    unmarked_pairs.remove(pair)
+                    changed = True
+                    break
+
+    equivalent_neighbors: dict[str, set[str]] = {state: set() for state in dfa.states}
+
+    for pair in unmarked_pairs:
+        p, q = tuple(pair)
+        equivalent_neighbors[p].add(q)
+        equivalent_neighbors[q].add(p)
+
+    equivalence_classes: list[frozenset[str]] = []
+    unvisited = set(dfa.states)
+
+    while unvisited:
+        start_state: str  = unvisited.pop()
+        current_class: set[str] = {start_state}
+        queue: list[str] = [start_state]
+
+        while queue:
+            current: str = queue.pop()
+            for neighbor in equivalent_neighbors[current]:
+                if neighbor in unvisited:
+                    unvisited.remove(neighbor)
+                    current_class.add(neighbor)
+                    queue.append(neighbor)
+
+        equivalence_classes.append(frozenset(current_class))
+
+    new_states = set()
+    new_end_states = set()
+    new_transitions: dict[str, dict[str, set[str]]] = {}
+
+    old_to_new: dict[str, str] = {}
+
+    for eq_class in equivalence_classes:
+        smallest_state: str = min(eq_class, key=extract_num)
+        new_name:str = f"s{extract_num(smallest_state)}"
+
+        new_states.add(new_name)
+
+        for state in eq_class:
+            old_to_new[state] = new_name
+
+    new_starting_state: str = old_to_new[dfa.starting_state]
+
+    for end_state in dfa.end_states:
+        if end_state in old_to_new:
+            new_end_states.add(old_to_new[end_state])
+
+    for eq_class in equivalence_classes:
+        rep:str = next(iter(eq_class))
+        new_name:str = old_to_new[rep]
+
+        new_transitions[new_name] = {}
+        for char in dfa.alphabet:
+            dest_set: set[str] = dfa.transitions.get(rep, {}).get(char, set())
+
+            if dest_set:
+                old_dest: str = next(iter(dest_set))
+                new_transitions[new_name][char] = {old_to_new[old_dest]}
+
+    return DFA(
+        states=new_states,
+        alphabet=dfa.alphabet,
+        starting_state=new_starting_state,
+        end_states=new_end_states,
+        transitions=new_transitions
+        )
