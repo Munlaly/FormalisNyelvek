@@ -13,7 +13,7 @@ class MinimizeProblem(Problem):
             Initialize the parser with the necessary arguments
         """
         parser.add_argument('--mini', help='determinize an automaton', action='store_true')
-        parser.add_argument('--m', help='method for minimizing')
+        parser.add_argument('--m', help='method for minimizing', default='hun')
         return
 
     def is_chosen_problem(self, args) -> bool:
@@ -29,10 +29,14 @@ class MinimizeProblem(Problem):
 
         input_file:str = args.input
         output_file:str = args.output
+        method:str = args.m
 
-        automaton: Automaton = Automaton.from_file(input_file)
-
-        minimized_automaton:DFA = minimize_hopcroft(automaton)
+        automaton: DFA = DFA.from_file(input_file)
+        match method.lower():
+            case 'hun':
+                minimized_automaton:DFA = minimize_hun(automaton)
+            case 'hopcroft':
+                minimized_automaton:DFA = minimize_hopcroft(automaton)
 
         with open(output_file,'w') as f:
             print(minimized_automaton, file=f)
