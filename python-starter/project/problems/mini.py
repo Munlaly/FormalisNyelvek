@@ -1,6 +1,6 @@
 import argparse
 
-from project.automatons import Automaton, minimize_hun, DFA
+from project.automatons import Automaton, minimize_hun, DFA, minimize_hopcroft
 from project.problem import Problem
 
 
@@ -32,7 +32,7 @@ class MinimizeProblem(Problem):
 
         automaton: Automaton = Automaton.from_file(input_file)
 
-        minimized_automaton:DFA = minimize_hun(automaton)
+        minimized_automaton:DFA = minimize_hopcroft(automaton)
 
         with open(output_file,'w') as f:
             print(minimized_automaton, file=f)

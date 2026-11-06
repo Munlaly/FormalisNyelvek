@@ -275,3 +275,78 @@ def minimize_hopcroft(dfa:DFA)->DFA:
         worklist: list[frozenset[str]] = [accepting if len(accepting) < len (non_accepting) else non_accepting]
     else:
         worklist: list[frozenset[str]] = [accepting if accepting else non_accepting]
+
+    while worklist:
+        spacer: frozenset[str]= worklist.pop()
+
+        for ch in dfa.alphabet:
+            X = set()
+            for state in spacer:
+                X.update(inverse_transitions[state][ch])
+
+            if not X:
+                continue
+
+            for p in list(partitions):
+                p_in = frozenset(p & X)
+                p_out = p - p_in
+
+                if p_in and p_out:
+                    partitions.remove(p)
+                    partitions.add(p_in)
+                    partitions.add(p_out)
+
+                    if p in worklist:
+                        worklist.remove(p)
+                        worklist.append(p_in)
+                        worklist.append(p_out)
+
+                    else:
+                        if len(p_in) < len(p_out):
+                            worklist.append(p_in)
+                        else:
+                            worklist.append(p_out)
+
+
+    new_states = set()
+    new_end_states = set()
+    new_transitions: dict[str, dict[str, set[str]]] = {}
+
+    old_to_new: dict[str, str] = {}
+
+    for partition in partitions:
+        smallest_state: str = min(partition, key=extract_num)
+        new_name:str = f"s{extract_num(smallest_state)}"
+
+        new_states.add(new_name)
+
+        for state in partition:
+            old_to_new[state] = new_name
+
+    new_starting_state: str = old_to_new[dfa.starting_state]
+
+    for end_state in dfa.end_states:
+        if end_state in old_to_new:
+            new_end_states.add(old_to_new[end_state])
+
+    for eq_class in partitions:
+        rep:str = next(iter(eq_class))
+        new_name:str = old_to_new[rep]
+
+        new_transitions[new_name] = {}
+        for char in dfa.alphabet:
+            dest_set: set[str] = dfa.transitions.get(rep, {}).get(char, set())
+
+            if dest_set:
+                old_dest: str = next(iter(dest_set))
+                new_transitions[new_name][char] = {old_to_new[old_dest]}
+
+    return DFA(
+        states=new_states,
+        alphabet=dfa.alphabet,
+        starting_state=new_starting_state,
+        end_states=new_end_states,
+        transitions=new_transitions
+        )
+
+
