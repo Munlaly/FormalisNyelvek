@@ -201,15 +201,15 @@ def minimize_hun(dfa:DFA)->DFA:
     while unvisited:
         start_state: str  = unvisited.pop()
         current_class: set[str] = {start_state}
-        queue: list[str] = [start_state]
+        stack: list[str] = [start_state]
 
-        while queue:
-            current: str = queue.pop()
+        while stack:
+            current: str = stack.pop()
             for neighbor in equivalent_neighbors[current]:
                 if neighbor in unvisited:
                     unvisited.remove(neighbor)
                     current_class.add(neighbor)
-                    queue.append(neighbor)
+                    stack.append(neighbor)
 
         equivalence_classes.append(frozenset(current_class))
 
@@ -253,3 +253,25 @@ def minimize_hun(dfa:DFA)->DFA:
         end_states=new_end_states,
         transitions=new_transitions
         )
+
+
+def minimize_hopcroft(dfa:DFA)->DFA:
+    inverse_transitions: dict[str, dict[str, set[str]]] = {
+        state: {ch: set() for ch in dfa.alphabet} for state in dfa.states
+    }
+
+    for state, edges in dfa.transitions.items():
+        for ch, dest_set in edges.items():
+            if dest_set:
+                dest = next(iter(dest_set))
+                inverse_transitions[dest][ch].add(state)
+
+    accepting = frozenset(dfa.end_states)
+    non_accepting = frozenset(dfa.states - accepting)
+
+    partitions: set[frozenset[str]] = {p for p in (accepting, non_accepting) if p}
+
+    if accepting and non_accepting:
+        worklist: list[frozenset[str]] = [accepting if len(accepting) < len (non_accepting) else non_accepting]
+    else:
+        worklist: list[frozenset[str]] = [accepting if accepting else non_accepting]
