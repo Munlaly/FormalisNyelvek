@@ -15,7 +15,7 @@ TASK1_PATTERNS = [
     r'^\S+ 10:18:51\.\d+ +221 +\d+ ',
     HEAD + r'E ',
     HEAD + r'W PackageManager:',
-    HEAD + r'D [^:]*ExoPlayer[^:]*:',
+    HEAD + r'D .*ExoPlayer.*',
     HEAD + r'[EW] .*\.java:',
     HEAD + r'[IDVEFAW] (.+?):.*Thread.*',
 ]
