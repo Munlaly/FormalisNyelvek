@@ -63,7 +63,7 @@ def task4(lines: list[str]) -> list[str]:
 
     selected_pid = max(pids, key=pids.get)
 
-    return [f'{selected_pid}={pids[selected_pid]} ({pids[selected_pid]} errors)']
+    return [f'PID={selected_pid} ({pids[selected_pid]} errors)']
 
 def task5(lines: list[str]) -> list[str]:
     cnt = 0
