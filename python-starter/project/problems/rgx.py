@@ -10,13 +10,13 @@ TASK1_PATTERNS = [
     r'^10-15 ',
     r'^10-15 10:18:51\.',
     r'^\S+ \d\d:\d\d:51\.',
-     HEAD + r'[IDVEFAW] lowmemorykiller *:',
+    HEAD + r'[IDVEFAW] lowmemorykiller *:',
     r'^\S+ 10:18:51\.\d+ +221 +\d+ ',
     HEAD + r'E ',
-    HEAD + r'W PackageManager *:',
+    HEAD + r'W PackageManager:',
     HEAD + r'D [^:]*ExoPlayer[^:]*:',
     HEAD + r'[EW] .*\.java:',
-    HEAD + r'[IDVEFAW] [^:]*: .*\bThread\b',
+    HEAD + r'[IDVEFAW] (.+?):.*Thread.*',
 ]
 
 def task1(lines: list[str]) -> list[str]:
