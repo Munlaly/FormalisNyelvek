@@ -2,6 +2,7 @@ import argparse
 import re
 from typing import Callable
 
+
 from project.problem import Problem
 
 HEAD = r'^\S+ \S+ +\d+ +\d+ '
@@ -21,6 +22,8 @@ TASK1_PATTERNS = [
 
 TASK2_PATTERN = re.compile(HEAD + r'E .*\((\w+\.java):\d+\)')
 
+TASK3_PATTERN = re.compile(r'^\S+ \S+ +(\d+) ')
+
 
 def task1(lines: list[str]) -> list[str]:
     return [str(sum(1 for line in lines if re.search(p, line)))
@@ -32,6 +35,20 @@ def task2(lines: list[str]) -> list[str]:
         m = TASK2_PATTERN.search(line)
         if m is not None:
             result.append(m.group(1))
+    return result
+
+def task3(lines: list[str]) -> list[str]:
+    seen = set()
+    result = []
+    for line in lines:
+        m = TASK3_PATTERN.search(line)
+
+        if m is not None:
+            pid = m.group(1)
+            if pid not in seen:
+                seen.add(pid)
+                result.append(pid)
+
     return result
 
 class RegexProblem(Problem):
@@ -54,7 +71,7 @@ class RegexProblem(Problem):
         input_file:str = args.input
         output_file:str = args.output
         task_num:int = int(args.rgx) - 1
-        tasks:list[Callable] = [task1, task2]
+        tasks:list[Callable] = [task1, task2, task3]
 
         with open(input_file, 'r', encoding='utf-8') as f_in:
             lines = f_in.read().splitlines()
