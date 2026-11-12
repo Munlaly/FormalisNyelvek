@@ -24,7 +24,7 @@ TASK2_PATTERN = re.compile(HEAD + r'E .*\((\w+\.java):\d+\)')
 
 TASK3_PATTERN = re.compile(r'^\S+ \S+ +(\d+) ')
 
-
+TASK4_PATTERN = re.compile(r'^\S+ \S+ +(\d+) +\d+ E ')
 def task1(lines: list[str]) -> list[str]:
     return [str(sum(1 for line in lines if re.search(p, line)))
             for p in TASK1_PATTERNS]
@@ -51,6 +51,18 @@ def task3(lines: list[str]) -> list[str]:
 
     return result
 
+def task4(lines: list[str]) -> list[str]:
+    pids = {}
+    for line in lines:
+        m = TASK4_PATTERN.search(line)
+        if m is not None:
+            pid = m.group(1)
+            pids[pid] = pids.get(pid, 0) + 1
+
+    selected_pid = max(pids, key=pids.get)
+
+    return [f'{selected_pid}={pids[selected_pid]} ({pids[selected_pid]} errors)']
+
 class RegexProblem(Problem):
     def initialize_parser(self, parser: argparse.ArgumentParser) -> None:
         """
@@ -71,7 +83,7 @@ class RegexProblem(Problem):
         input_file:str = args.input
         output_file:str = args.output
         task_num:int = int(args.rgx) - 1
-        tasks:list[Callable] = [task1, task2, task3]
+        tasks:list[Callable] = [task1, task2, task3, task4]
 
         with open(input_file, 'r', encoding='utf-8') as f_in:
             lines = f_in.read().splitlines()
