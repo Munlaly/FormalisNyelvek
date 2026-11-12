@@ -25,6 +25,8 @@ TASK2_PATTERN = re.compile(HEAD + r'E .*\((\w+\.java):\d+\)')
 TASK3_PATTERN = re.compile(r'^\S+ \S+ +(\d+) ')
 
 TASK4_PATTERN = re.compile(r'^\S+ \S+ +(\d+) +\d+ E ')
+
+TASK5_PATTERN = re.compile(r'^\S+ \S+ +(\d+) +(\d+) E ')
 def task1(lines: list[str]) -> list[str]:
     return [str(sum(1 for line in lines if re.search(p, line)))
             for p in TASK1_PATTERNS]
@@ -61,7 +63,19 @@ def task4(lines: list[str]) -> list[str]:
 
     selected_pid = max(pids, key=pids.get)
 
-    return [f'{selected_pid}={pids[selected_pid]}']
+    return [f'{selected_pid}={pids[selected_pid]} ({pids[selected_pid]} errors)']
+
+def task5(lines: list[str]) -> list[str]:
+    cnt = 0
+    for line in lines:
+        m = TASK5_PATTERN.search(line)
+        if m is not None:
+            pid = m.group(1)
+            tid = m.group(2)
+            if pid == tid:
+                cnt += 1
+
+    return [str(cnt)]
 
 class RegexProblem(Problem):
     def initialize_parser(self, parser: argparse.ArgumentParser) -> None:
@@ -83,7 +97,7 @@ class RegexProblem(Problem):
         input_file:str = args.input
         output_file:str = args.output
         task_num:int = int(args.rgx) - 1
-        tasks:list[Callable] = [task1, task2, task3, task4]
+        tasks:list[Callable] = [task1, task2, task3, task4, task5]
 
         with open(input_file, 'r', encoding='utf-8') as f_in:
             lines = f_in.read().splitlines()
