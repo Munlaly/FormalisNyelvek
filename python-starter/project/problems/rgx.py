@@ -61,7 +61,7 @@ def task4(lines: list[str]) -> list[str]:
 
     selected_pid = max(pids, key=pids.get)
 
-    return [f'{selected_pid}={pids[selected_pid]} ({pids[selected_pid]} errors)']
+    return [f'{selected_pid}={pids[selected_pid]}']
 
 class RegexProblem(Problem):
     def initialize_parser(self, parser: argparse.ArgumentParser) -> None:
