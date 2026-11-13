@@ -5,19 +5,19 @@ from typing import Callable
 
 from project.problem import Problem
 
-HEAD = r'^\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ +\d+ +\d+ '
+HEAD = r'^\S+ \S+ +\d+ +\d+ '
 
 TASK1_PATTERNS = [
     r'^10-15 ',
     r'^10-15 10:18:51\.',
-    r'^\d{2}-\d{2} \d{2}:\d{2}:51\.',
+    r'^\S+ \d\d:\d\d:51\.',
     HEAD + r'[IDVEFAW] lowmemorykiller *:',
-    r'^\d{2}-\d{2} 10:18:51\.\d+ +221 +\d+ ',
+    r'^\S+ 10:18:51\.\d+ +221 +\d+ ',
     HEAD + r'E ',
-    HEAD + r'W PackageManager *:',
-    HEAD + r'D .*ExoPlayer',
-    HEAD + r'[EW] [^:]+:\s+.*\.java:\d+',
-    HEAD + r'[IDVEFAW] [^:]+:\s+.*\bThread\b',
+    HEAD + r'W PackageManager:',
+    HEAD + r'D .*ExoPlayer.*',
+    HEAD + r'[EW] .*\.java:',
+    HEAD + r'[IDVEFAW] (.+?):.*Thread.*',
 ]
 
 TASK2_PATTERN = re.compile(HEAD + r'E .*\((\w+\.java):\d+\)')
