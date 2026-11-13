@@ -12,10 +12,10 @@ TASK1_PATTERNS = [
     r'^10-15 10:18:51\.',
     r'^\d{2}-\d{2} \d{2}:\d{2}:51\.',
     HEAD + r'[IDVEFAW] lowmemorykiller *:',
-    r'^\d{2}-\d{2} 10:18:51\.\d+ +221 +\d+ ',
+    r'^\d{2}-\d{2} 10:18:51\.\d{3} +221 +\d+ ',
     HEAD + r'E ',
     HEAD + r'W PackageManager *:',
-    HEAD + r'D .*ExoPlayer',
+    HEAD + r'D .*ExoPlayer[^:]+:',
     HEAD + r'[EW] [^:]+:\s+.*\.java:\d+',
     HEAD + r'[IDVEFAW] [^:]+:\s+.*\bThread\b',
 ]
